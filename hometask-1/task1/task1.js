@@ -1,4 +1,4 @@
-const { stdin, stdout } = require('node:process');
+import { stdin, stdout } from 'node:process';
 
 const reverseString = (str) => {
     return [...str].reverse().join('');
