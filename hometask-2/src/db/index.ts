@@ -13,14 +13,14 @@ export class DB {
     private users: User[] = mockedUsersList;
 
     getAllUsers = (limit?: number) => {
-        const users = this.users.filter((user) => !user.isDelated).sort(sortByLoginCallback);
+        const users = this.users.filter((user) => !user.isDeleted).sort(sortByLoginCallback);
 
         return typeof limit === 'number' && limit >= 0 ? users.slice(0, limit) : users;
     }
 
     getUsersByLoginSubstring = (loginSubstring: string, limit?: number) => {
         const usersFound = this.users.filter((user) => {
-            return user.login?.toLocaleLowerCase().includes(loginSubstring?.toLocaleLowerCase()) && !user.isDelated;
+            return user.login?.toLocaleLowerCase().includes(loginSubstring?.toLocaleLowerCase()) && !user.isDeleted;
         }).sort(sortByLoginCallback);
 
         return typeof limit === 'number' && limit >= 0 ? usersFound.slice(0, limit) : usersFound;
@@ -29,7 +29,7 @@ export class DB {
     getUserById = (id: string) => {
         const user = this.users.find((user) => user.id === id);
 
-        if (!user || user?.isDelated) {
+        if (!user || user?.isDeleted) {
             throw new Error(ERRORS.USER_NOT_FOUND);
         }
 
@@ -45,7 +45,7 @@ export class DB {
 
         const userBeforeUpdate = this.users[userIndex];
 
-        if (userBeforeUpdate.isDelated) {
+        if (userBeforeUpdate.isDeleted) {
             throw new Error(ERRORS.USER_NOT_FOUND);
         };
 
@@ -57,14 +57,14 @@ export class DB {
 
     addUser = (user: User) => {
         const generatedId = uuidv4();
-        const newUser = { ...user, id: generatedId, isDelated: false }
+        const newUser = { ...user, id: generatedId, isDeleted: false }
         this.users.push(newUser);
 
         return newUser.id;
     }
 
     deleteUser = (id: string) => {
-        return this.updateUser(id, { isDelated: true });
+        return this.updateUser(id, { isDeleted: true });
     }
 };
 
