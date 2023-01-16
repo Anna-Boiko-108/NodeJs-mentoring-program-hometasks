@@ -1,24 +1,28 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const { pipeline } = require('node:stream');
-const csvtojson = require('csvtojson');
+import { createReadStream, createWriteStream } from 'node:fs';
+import { resolve } from 'node:path';
+import { pipeline } from 'node:stream/promises';
+import csvtojson from 'csvtojson';
 
-const FILE_PATH = path.resolve(__dirname, './csv/nodejs-hw1-ex1');
 
-const readFileStream = fs.createReadStream(`${FILE_PATH}.csv`);
+const FILE_PATH = resolve(__dirname, './csv/nodejs-hw1-ex1');
+
+const readFileStream = createReadStream(`${FILE_PATH}.csv`);
 const fileConverter = csvtojson({ ignoreColumns: /Amount/ });
-const writeFileStream = fs.createWriteStream(`${FILE_PATH}.txt`);
+const writeFileStream = createWriteStream(`${FILE_PATH}.txt`);
 const errorCallback = (err) => {
     if (err) {
         console.error('Pipeline failed.', err);
-    } else {
-        console.log('Pipeline succeeded.');
     }
 }
 
-pipeline(
-    readFileStream,
-    fileConverter,
-    writeFileStream,
-    errorCallback
-);
+async function run() {
+    await pipeline(
+        readFileStream,
+        fileConverter,
+        writeFileStream
+    );
+
+    console.log('Pipeline succeeded.');
+  }
+  
+  run().catch(errorCallback);
