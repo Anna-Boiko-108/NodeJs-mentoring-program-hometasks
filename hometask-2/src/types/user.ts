@@ -5,3 +5,7 @@ export type User = {
     age: number;
     isDeleted: boolean;
 }
+
+export enum ERRORS {
+    USER_NOT_FOUND = 'User not found!'
+}

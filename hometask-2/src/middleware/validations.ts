@@ -7,14 +7,14 @@ export enum ERRORS {
 
 const errorResponse = (schemaErrors: Joi.ValidationErrorItem[]) => {
     const errors = schemaErrors.map((error) => {
-        let { path, message } = error;
+        const { path, message } = error;
         return { path, message };
-    })
+    });
     return {
         status: ERRORS.VALIDATION_FAILED,
-        errors,
-    }
-}
+        errors
+    };
+};
 
 
 export const validateSchema = (schema: Joi.ObjectSchema<any>) => {
@@ -29,5 +29,5 @@ export const validateSchema = (schema: Joi.ObjectSchema<any>) => {
         } else {
             next();
         }
-    }
-}
+    };
+};

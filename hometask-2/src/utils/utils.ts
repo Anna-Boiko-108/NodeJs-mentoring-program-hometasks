@@ -1,4 +1,4 @@
-import { User } from "../types";
+import { User } from '../types';
 
 export const sortByLoginCallback = (a: User, b: User) => {
     const nameA = a.login.toUpperCase();
