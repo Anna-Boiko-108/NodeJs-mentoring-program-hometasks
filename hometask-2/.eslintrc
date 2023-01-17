@@ -156,11 +156,11 @@
         "no-delete-var": 2,
         "no-label-var": 2,
         "no-shadow-restricted-names": 2,
-        "no-shadow": 2,
+        "no-shadow": "off",
         "no-undef-init": 2,
         "no-undef": 2,
-        "no-unused-vars": 2,
-        "callback-return": 2,
+        "no-unused-vars": "off",
+        "callback-return": "off",
         "no-mixed-requires": 2,
         "no-path-concat": 2,
         "no-sync": 2,
@@ -218,8 +218,7 @@
             4,
             {
                 "ignoreUrls": true,
-                "ignoreComments": false,
-                "ignorePattern": "^\\s*(const|let|var)\\s+\\w+\\s+\\=\\s+\\/.*\\/(|i|g|m|ig|im|gm|igm);?$"
+                "ignoreComments": false
             }
         ],
         "max-nested-callbacks": [
