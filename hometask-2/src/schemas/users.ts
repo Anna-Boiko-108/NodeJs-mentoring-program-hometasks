@@ -15,7 +15,7 @@ export const newUserSchema = Joi.object({
         .integer()
         .min(4)
         .max(130)
-        .required(),
+        .required()
 });
 
 export const updateUserSchema = Joi.object({
@@ -30,5 +30,5 @@ export const updateUserSchema = Joi.object({
     age: Joi.number()
         .integer()
         .min(4)
-        .max(130),
+        .max(130)
 });
