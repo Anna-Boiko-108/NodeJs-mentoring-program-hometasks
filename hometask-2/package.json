@@ -6,7 +6,8 @@
   "scripts": {
     "start:dev": "nodemon",
     "db:create-users-table": "node scripts/create-users-table.mjs",
-    "db:populate-users-table": "node scripts/populate-users-table.mjs"
+    "db:populate-users-table": "node scripts/populate-users-table.mjs",
+    "lint": "npx eslint . --ext ts"
   },
   "author": "",
   "license": "ISC",

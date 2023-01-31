@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import { getUserById, addUser, updateUser, deleteUser, getAllUsers, getUsersByLoginSubstring } from '../data-access/user-repository';
 import { validateSchema } from '../middleware/validations';
 import { newUserSchema, updateUserSchema } from '../schemas/users';
-import { ERRORS, User } from '../types';
+import { USER_ERRORS as ERRORS, User } from '../types';
 
 const router = express.Router();
 
