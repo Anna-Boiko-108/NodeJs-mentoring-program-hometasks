@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start:dev": "nodemon"
+    "start:dev": "nodemon",
+    "lint": "npx eslint . --ext ts"
   },
   "author": "",
   "license": "ISC",
