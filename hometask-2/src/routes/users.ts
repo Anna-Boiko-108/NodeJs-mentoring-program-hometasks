@@ -7,6 +7,8 @@ import { ERRORS, User } from '../types';
 
 const router = express.Router();
 
+const DEFAULT_LIMIT = 20;
+
 router.route('/:id')
     .get(async (req: Request, res: Response) => {
         try {
@@ -52,14 +54,14 @@ router.route('/')
     .get(async (req: Request, res: Response) => {
         try {
             const loginSubstring = req.query.loginSubstring as string;
-            const limit = parseInt(req.query.limit as string, 10) as number;
+            const limit = req.query.limit ? parseInt(req.query?.limit as string, 10) : DEFAULT_LIMIT;
 
             let users: User[];
 
             if (typeof loginSubstring === 'string') {
-                users = await getUsersByLoginSubstring(loginSubstring, limit) as unknown as User[];
+                users = await getUsersByLoginSubstring(loginSubstring, limit);
             } else {
-                users = await getAllUsers(limit) as unknown as User[];
+                users = await getAllUsers(limit);
             }
 
             res.json(users);

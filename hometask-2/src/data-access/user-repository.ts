@@ -11,6 +11,8 @@ export async function getUserById(id: string): Promise<User | null> {
         raw: true
     });
 
+    if (!user) return null;
+
     return normalizeUser(user);
 }
 
@@ -37,6 +39,8 @@ export async function updateUser(id: string, user: Partial<User>): Promise<User 
 
     const updatedUser = response[1][0];
 
+    if (!updatedUser) return null;
+
     return normalizeUser(updatedUser);
 }
 
@@ -57,10 +61,10 @@ export async function deleteUser(id: string): Promise<string> {
     return softDeletedUser?.id;
 }
 
-export async function getAllUsers(limit?: number) {
+export async function getAllUsers(limit: number) {
     const users = await getUserModel().findAll({
         where: { is_deleted: false },
-        limit: limit || undefined,
+        limit,
         order: [['login', 'ASC']],
         raw: true
     });
@@ -68,10 +72,10 @@ export async function getAllUsers(limit?: number) {
     return users.map(normalizeUser);
 }
 
-export async function getUsersByLoginSubstring(loginSubstring: string, limit?: number) {
+export async function getUsersByLoginSubstring(loginSubstring: string, limit: number) {
     const users = await getUserModel().findAll({
         where: { is_deleted: false, login: { [Op.iLike]: `%${loginSubstring}%` } },
-        limit: limit || undefined,
+        limit,
         order: [['login', 'ASC']],
         raw: true
     });
