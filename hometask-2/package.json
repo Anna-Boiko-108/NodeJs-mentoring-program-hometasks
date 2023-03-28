@@ -4,7 +4,9 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start:dev": "nodemon"
+    "start:dev": "nodemon",
+    "db:create-users-table": "node scripts/create-users-table.mjs",
+    "db:populate-users-table": "node scripts/populate-users-table.mjs"
   },
   "author": "",
   "license": "ISC",
