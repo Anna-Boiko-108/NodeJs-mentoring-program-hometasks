@@ -7,6 +7,8 @@ import { Group, GROUP_ERRORS as ERRORS } from '../types';
 
 const router = express.Router();
 
+const DEFAULT_LIMIT = 20;
+
 router.route('/:id')
     .get(async (req: Request, res: Response) => {
         try {
@@ -51,9 +53,9 @@ router.route('/:id')
 router.route('/')
     .get(async (req: Request, res: Response) => {
         try {
-            const limit = parseInt(req.query.limit as string, 10) as number;
+            const limit = req.query.limit ? parseInt(req.query?.limit as string, 10) : DEFAULT_LIMIT;
 
-            const groups = await getAllGroups(limit) as unknown as Group[];
+            const groups = await getAllGroups(limit);
 
             res.json(groups);
         } catch (err: any) {
