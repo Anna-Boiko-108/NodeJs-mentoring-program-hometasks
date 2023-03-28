@@ -3,7 +3,9 @@ import express, { Request, Response } from 'express';
 import { addUsersToGroup, createGroup, deleteGroup, getAllGroups, getGroupById, updateGroup } from '../data-access/group-repository';
 import { validateSchema } from '../middleware/validations';
 import { newGroupSchema, updateGroupSchema } from '../schemas/groups';
+import { logger } from '../services/logger';
 import { Group, GROUP_ERRORS as ERRORS } from '../types';
+import { prepareRoutesErrorLog } from '../utils/utils';
 
 const router = express.Router();
 
@@ -20,6 +22,7 @@ router.route('/:id')
 
             res.json(group);
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     })
@@ -33,6 +36,7 @@ router.route('/:id')
 
             res.json(updatedGroup);
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     })
@@ -46,6 +50,7 @@ router.route('/:id')
 
             res.json({ deletedRowsCount });
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     });
@@ -59,6 +64,7 @@ router.route('/')
 
             res.json(groups);
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     })
@@ -68,6 +74,7 @@ router.route('/')
 
             res.json({ id: groupId });
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     });
@@ -88,6 +95,7 @@ router.route('/:id/add-users')
 
             res.json({ groupId });
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     });
