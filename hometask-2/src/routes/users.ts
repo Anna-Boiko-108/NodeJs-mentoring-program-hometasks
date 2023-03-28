@@ -1,53 +1,67 @@
 import express, { Request, Response } from 'express';
 
-import { db } from '../db';
+import { getUserById, addUser, updateUser, deleteUser, getAllUsers, getUsersByLoginSubstring } from '../data-access/user-repository';
 import { validateSchema } from '../middleware/validations';
 import { newUserSchema, updateUserSchema } from '../schemas/users';
-import { User } from '../types';
+import { ERRORS, User } from '../types';
 
 const router = express.Router();
 
+const DEFAULT_LIMIT = 20;
+
 router.route('/:id')
-    .get((req: Request, res: Response) => {
+    .get(async (req: Request, res: Response) => {
         try {
-            const user = db.getUserById(req.params.id);
+            const user = await getUserById(req.params.id);
+
+            if (!user) {
+                throw new Error(ERRORS.USER_NOT_FOUND);
+            }
 
             res.json(user);
         } catch (err: any) {
             res.status(400).json({ message: err.message });
         }
     })
-    .put(validateSchema(updateUserSchema), (req: Request, res: Response) => {
+    .put(validateSchema(updateUserSchema), async (req: Request, res: Response) => {
         try {
-            const updatedUser = db.updateUser(req.params.id, req.body);
+            const updatedUser = await updateUser(req.params.id, req.body);
+
+            if (!updatedUser) {
+                throw new Error(ERRORS.USER_NOT_FOUND);
+            }
 
             res.json(updatedUser);
         } catch (err: any) {
             res.status(400).json({ message: err.message });
         }
     })
-    .delete((req: Request, res: Response) => {
+    .delete(async (req: Request, res: Response) => {
         try {
-            const deletedUserId = db.deleteUser(req.params.id);
+            const deletedUserId = await deleteUser(req.params.id);
 
-            res.json({ id: deletedUserId.id });
+            if (!deletedUserId) {
+                throw new Error(ERRORS.USER_NOT_FOUND);
+            }
+
+            res.json({ id: deletedUserId });
         } catch (err: any) {
             res.status(400).json({ message: err.message });
         }
-    })
+    });
 
 router.route('/')
-    .get((req: Request, res: Response) => {
+    .get(async (req: Request, res: Response) => {
         try {
             const loginSubstring = req.query.loginSubstring as string;
-            const limit = parseInt(req.query.limit as string, 10) as number;
+            const limit = req.query.limit ? parseInt(req.query?.limit as string, 10) : DEFAULT_LIMIT;
 
             let users: User[];
 
             if (typeof loginSubstring === 'string') {
-                users = db.getUsersByLoginSubstring(loginSubstring, limit);
+                users = await getUsersByLoginSubstring(loginSubstring, limit);
             } else {
-                users = db.getAllUsers(limit);
+                users = await getAllUsers(limit);
             }
 
             res.json(users);
@@ -55,16 +69,15 @@ router.route('/')
             res.status(400).json({ message: err.message });
         }
     })
-    .post(validateSchema(newUserSchema), (req: Request, res: Response) => {
+    .post(validateSchema(newUserSchema), async (req: Request, res: Response) => {
         try {
-            const userId = db.addUser(req.body);
+            const userId = await addUser(req.body);
 
             res.json({ id: userId });
         } catch (err: any) {
             res.status(400).json({ message: err.message });
         }
-    })
-
+    });
 
 
 export default router;
