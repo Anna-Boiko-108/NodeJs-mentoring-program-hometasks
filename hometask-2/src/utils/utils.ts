@@ -27,6 +27,6 @@ export const prepareRoutesErrorLog = (req: Request, res: Response, error: Error)
 };
 
 export const prepareMethodsInfoLog = (methodName: string, params: Record<string, unknown>) => {
-    const message = Object.keys(params).map(param => `${param}: ${typeof params[param] === 'object' ? JSON.stringify(params[param]) : params[param]}`).join(", ");
+    const message = Object.keys(params).map(param => `${param}: ${typeof params[param] === 'object' ? JSON.stringify(params[param]) : params[param]}`).join(', ');
     return { label: methodName, message };
 };
