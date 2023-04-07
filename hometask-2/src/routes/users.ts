@@ -3,7 +3,9 @@ import express, { Request, Response } from 'express';
 import { getUserById, addUser, updateUser, deleteUser, getAllUsers, getUsersByLoginSubstring } from '../data-access/user-repository';
 import { validateSchema } from '../middleware/validations';
 import { newUserSchema, updateUserSchema } from '../schemas/users';
+import { logger } from '../services/logger';
 import { USER_ERRORS as ERRORS, User } from '../types';
+import { prepareRoutesErrorLog } from '../utils/utils';
 
 const router = express.Router();
 
@@ -20,6 +22,7 @@ router.route('/:id')
 
             res.json(user);
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     })
@@ -33,6 +36,7 @@ router.route('/:id')
 
             res.json(updatedUser);
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     })
@@ -46,6 +50,7 @@ router.route('/:id')
 
             res.json({ id: deletedUserId });
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     });
@@ -67,6 +72,7 @@ router.route('/')
             res.json(users);
         } catch (err: any) {
             res.status(400).json({ message: err.message });
+            logger.error(prepareRoutesErrorLog(req, res, err));
         }
     })
     .post(validateSchema(newUserSchema), async (req: Request, res: Response) => {
@@ -75,6 +81,7 @@ router.route('/')
 
             res.json({ id: userId });
         } catch (err: any) {
+            logger.error(prepareRoutesErrorLog(req, res, err));
             res.status(400).json({ message: err.message });
         }
     });
