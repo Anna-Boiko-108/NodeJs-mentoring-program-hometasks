@@ -6,6 +6,6 @@ export type User = {
     isDeleted: boolean;
 }
 
-export enum ERRORS {
+export enum USER_ERRORS {
     USER_NOT_FOUND = 'User not found!'
 }
