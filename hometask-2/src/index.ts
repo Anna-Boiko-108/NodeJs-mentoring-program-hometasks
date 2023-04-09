@@ -1,24 +1,27 @@
-import dotenv from 'dotenv';
 import express from 'express';
 import { errorHandler } from './middleware/errorHandler';
 import { serviceMethodLogger } from './middleware/serviceMethodLogger';
-import process from 'node:process';
+import cors from 'cors';
 
-import { groupsRouter, usersRouter } from './routes';
+import { groupsRouter, loginRouter, usersRouter } from './routes';
 
 import { logger } from './services/logger';
 import { setupErrorHandlers } from './process';
-
-dotenv.config();
+import { config } from './config';
+import { checkToken } from './middleware/checkToken';
 
 const app = express();
-const port = 3000;
+const port = config.PORT;
 
+app.use(cors());
 setupErrorHandlers();
 
 app.use(express.json());
 app.use(serviceMethodLogger);
 
+app.use('/login', loginRouter);
+
+app.use(checkToken);
 app.use('/users', usersRouter);
 app.use('/groups', groupsRouter);
 

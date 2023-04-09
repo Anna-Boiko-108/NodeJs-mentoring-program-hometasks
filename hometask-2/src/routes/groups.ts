@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 
 import { addUsersToGroup, createGroup, deleteGroup, getAllGroups, getGroupById, updateGroup } from '../data-access/group-repository';
 import { validateSchema } from '../middleware/validations';
-import { newGroupSchema, updateGroupSchema } from '../schemas/groups';
+import { newGroupSchema, updateGroupSchema } from '../schemas';
 import { logger } from '../services/logger';
 import { Group, GROUP_ERRORS as ERRORS } from '../types';
 import { prepareRoutesErrorLog } from '../utils/utils';

@@ -2,12 +2,12 @@ import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../services/logger';
 
-import { User } from '../types';
+import { USER_ERRORS, User } from '../types';
 import { prepareMethodsInfoLog } from '../utils/utils';
 import { getUserModel } from './models/user';
 import { normalizeUser, normalizeUserRecord } from './normalizers/user';
 
-export async function getUserById(id: string): Promise<User | null> {
+export async function getUserById(id: string): Promise<User> {
     logger.info(prepareMethodsInfoLog('getUserById', { id }));
 
     const user = await getUserModel().findOne({
@@ -15,7 +15,20 @@ export async function getUserById(id: string): Promise<User | null> {
         raw: true
     });
 
-    if (!user) return null;
+    if (!user) throw new Error(USER_ERRORS.USER_NOT_FOUND);
+
+    return normalizeUser(user);
+}
+
+export async function getUserByLogin(login: string): Promise<User> {
+    logger.info(prepareMethodsInfoLog('getUserByLogin', { login }));
+
+    const user = await getUserModel().findOne({
+        where: { login, is_deleted: false },
+        raw: true
+    });
+
+    if (!user)  throw new Error(USER_ERRORS.USER_NOT_FOUND);
 
     return normalizeUser(user);
 }

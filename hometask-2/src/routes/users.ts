@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 
 import { getUserById, addUser, updateUser, deleteUser, getAllUsers, getUsersByLoginSubstring } from '../data-access/user-repository';
 import { validateSchema } from '../middleware/validations';
-import { newUserSchema, updateUserSchema } from '../schemas/users';
+import { newUserSchema, updateUserSchema } from '../schemas';
 import { logger } from '../services/logger';
 import { USER_ERRORS as ERRORS, User } from '../types';
 import { prepareRoutesErrorLog } from '../utils/utils';
@@ -15,10 +15,6 @@ router.route('/:id')
     .get(async (req: Request, res: Response) => {
         try {
             const user = await getUserById(req.params.id);
-
-            if (!user) {
-                throw new Error(ERRORS.USER_NOT_FOUND);
-            }
 
             res.json(user);
         } catch (err: any) {
