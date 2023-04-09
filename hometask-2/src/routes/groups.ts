@@ -1,9 +1,8 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 
 import { addUsersToGroup, createGroup, deleteGroup, getAllGroups, getGroupById, updateGroup } from '../data-access/group-repository';
 import { validateSchema } from '../middleware/validations';
 import { newGroupSchema, updateGroupSchema } from '../schemas';
-import { handleResult } from '../utils/utils';
 import { checkToken } from '../middleware/checkToken';
 
 const router = express.Router();
@@ -11,41 +10,71 @@ const router = express.Router();
 const DEFAULT_LIMIT = 20;
 
 router.route('/:id')
-    .get(checkToken, handleResult(async (req: Request) => {
-        return await getGroupById(req.params.id);
-    }))
-    .put(checkToken, validateSchema(updateGroupSchema), handleResult(async (req: Request) => {
-        return await updateGroup(req.params.id, req.body);
-    }))
-    .delete(checkToken, handleResult(async (req: Request) => {
-        const deletedRowsCount = await deleteGroup(req.params.id);
+    .get(checkToken, async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const group = await getGroupById(req.params.id);
 
-        return { deletedRowsCount };
-    }));
+            res.status(200).json({ success: true, data: group });
+        }  catch (err: any) {
+            next(err);
+        }
+    })
+    .put(checkToken, validateSchema(updateGroupSchema),  async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const group = await updateGroup(req.params.id, req.body);
+
+            res.status(200).json({ success: true, data: group });
+        }  catch (err: any) {
+            next(err);
+        }
+    })
+    .delete(checkToken, async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const deletedRowsCount = await deleteGroup(req.params.id);
+
+            res.status(200).json({ success: true, data:  { deletedRowsCount } });
+        }  catch (err: any) {
+            next(err);
+        }
+    });
 
 router.route('/')
-    .get(checkToken, handleResult(async (req: Request) => {
-        const limit = req.query.limit ? parseInt(req.query?.limit as string, 10) : DEFAULT_LIMIT;
+    .get(checkToken,  async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const limit = req.query.limit ? parseInt(req.query?.limit as string, 10) : DEFAULT_LIMIT;
 
-        return await getAllGroups(limit);
-    }))
-    .post(checkToken, validateSchema(newGroupSchema), handleResult(async (req: Request) => {
-        const groupId = await createGroup(req.body);
+            const groups = await getAllGroups(limit);
 
-        return { id: groupId };
-    }));
+            res.status(200).json({ success: true, data: groups });
+        }  catch (err: any) {
+            next(err);
+        }
+    })
+    .post(checkToken, validateSchema(newGroupSchema),  async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const groupId = await createGroup(req.body);
+
+            res.status(200).json({ success: true, data: { id: groupId } });
+        }  catch (err: any) {
+            next(err);
+        }
+    });
 
 router.route('/:id/add-users')
-    .post(checkToken, handleResult(async (req: Request) => {
-        const groupId = req.params.id;
-        await getGroupById(groupId);
+    .post(checkToken,  async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const groupId = req.params.id;
+            await getGroupById(groupId);
 
-        const userIds = req.body.userIds;
+            const userIds = req.body.userIds;
 
-        await addUsersToGroup(groupId, userIds);
+            await addUsersToGroup(groupId, userIds);
 
-        return { groupId };
-    }));
+            res.status(200).json({ success: true, data: { id: groupId } });
+        }  catch (err: any) {
+            next(err);
+        }
+    });
 
 
 export default router;

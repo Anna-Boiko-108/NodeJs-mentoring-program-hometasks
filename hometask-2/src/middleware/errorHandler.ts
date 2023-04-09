@@ -1,13 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
 import { logger } from '../services/logger';
-import { ERRORS } from '../types';
+import { ERRORS as COMMON_ERRORS, GROUP_ERRORS, USER_ERRORS } from '../types';
 import 'express-async-errors';
-import { formatError } from '../utils/utils';
+import { formatError, prepareRoutesErrorLog } from '../utils/utils';
 
 export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
-    const log = formatError(err);
+    const ERRORS = { ...GROUP_ERRORS, ...USER_ERRORS };
 
-    logger.error({ label: 'errorHandler', message: log });
+    if (Object.values(ERRORS).some(message => message === err.message)) {
+        logger.error(prepareRoutesErrorLog(req, res, err));
 
-    res.status(ERRORS.INTERNAL_SERVER_ERROR.code).json({ error: ERRORS.INTERNAL_SERVER_ERROR.message });
+        res.status(400).json({ success: false, message: err.message });
+    } else {
+        logger.error({ label: 'errorHandler', message: formatError(err) });
+
+        res.status(COMMON_ERRORS.INTERNAL_SERVER_ERROR.code).json({  success: false, message: COMMON_ERRORS.INTERNAL_SERVER_ERROR.message });
+    }
+
+    next();
 };
