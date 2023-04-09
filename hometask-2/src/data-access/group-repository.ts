@@ -5,8 +5,9 @@ import { prepareMethodsInfoLog } from '../utils/utils';
 import { getGroupModel, getUserGroupModel } from './models';
 import getDbConnection from './models/db-connection';
 import { Group } from './types';
+import { GROUP_ERRORS } from '../types';
 
-export async function getGroupById(id: string): Promise<Group | null> {
+export async function getGroupById(id: string): Promise<Group> {
     logger.info(prepareMethodsInfoLog('getGroupById', { id }));
 
     const group = await getGroupModel().findOne({
@@ -14,10 +15,12 @@ export async function getGroupById(id: string): Promise<Group | null> {
         raw: true
     });
 
+    if (!group) throw new Error(GROUP_ERRORS.GROUP_NOT_FOUND);
+
     return group;
 }
 
-export async function getAllGroups(limit?: number): Promise<Group[] | null> {
+export async function getAllGroups(limit?: number): Promise<Group[]> {
     logger.info(prepareMethodsInfoLog('getAllGroups', { limit }));
 
     const groups = await getGroupModel().findAll({
@@ -37,10 +40,10 @@ export async function createGroup(group: Omit<Group, 'id'>): Promise<string> {
 
     const response = (await getGroupModel().create(newGroup)).get({ plain: true });
 
-    return response?.id;
+    return response.id;
 }
 
-export async function updateGroup(id: string, group: Partial<Group>): Promise<Group | null> {
+export async function updateGroup(id: string, group: Partial<Group>): Promise<Group> {
     logger.info(prepareMethodsInfoLog('updateGroup', { ...group, id }));
 
     const response = await getGroupModel().update(group, {
@@ -55,6 +58,8 @@ export async function updateGroup(id: string, group: Partial<Group>): Promise<Gr
 
     const updatedGroup = response[1][0];
 
+    if (!updatedGroup) throw new Error(GROUP_ERRORS.GROUP_NOT_FOUND);
+
     return updatedGroup;
 }
 
@@ -66,6 +71,8 @@ export async function deleteGroup(id: string): Promise<number> {
             id
         }
     });
+
+    if (!response) throw new Error(GROUP_ERRORS.GROUP_NOT_FOUND);
 
     return response;
 }

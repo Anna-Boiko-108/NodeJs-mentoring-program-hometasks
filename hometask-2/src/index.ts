@@ -21,7 +21,7 @@ app.use(serviceMethodLogger);
 
 app.use('/login', loginRouter);
 
-app.use(checkToken);
+// app.use(checkToken);
 app.use('/users', usersRouter);
 app.use('/groups', groupsRouter);
 

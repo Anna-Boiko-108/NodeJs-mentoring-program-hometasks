@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { config } from '../config';
 import jwt from 'jsonwebtoken';
 import { LOGIN_ERRORS } from '../types';
+import { log } from 'console';
 
 export const checkToken = (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
