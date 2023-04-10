@@ -9,7 +9,7 @@ import { User } from '../types';
 
 const router = express.Router();
 
-const DEFAULT_LIMIT = 20;
+const DEFAULT_LIMIT = 10;
 
 router.route('/:id')
     .get(checkToken, async (req: Request, res: Response, next: NextFunction) => {

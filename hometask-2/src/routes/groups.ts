@@ -7,7 +7,7 @@ import { checkToken } from '../middleware/checkToken';
 
 const router = express.Router();
 
-const DEFAULT_LIMIT = 20;
+const DEFAULT_LIMIT = 10;
 
 router.route('/:id')
     .get(checkToken, async (req: Request, res: Response, next: NextFunction) => {
@@ -54,7 +54,7 @@ router.route('/')
         try {
             const groupId = await createGroup(req.body);
 
-            res.status(200).json({ success: true, data: { id: groupId } });
+            res.status(201).json({ success: true, data: { id: groupId } });
         }  catch (err: any) {
             next(err);
         }
@@ -70,7 +70,7 @@ router.route('/:id/add-users')
 
             await addUsersToGroup(groupId, userIds);
 
-            res.status(200).json({ success: true, data: { id: groupId } });
+            res.status(201).json({ success: true, data: { id: groupId } });
         }  catch (err: any) {
             next(err);
         }

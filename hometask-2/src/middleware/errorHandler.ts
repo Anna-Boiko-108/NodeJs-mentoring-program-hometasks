@@ -16,6 +16,4 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
 
         res.status(COMMON_ERRORS.INTERNAL_SERVER_ERROR.code).json({  success: false, message: COMMON_ERRORS.INTERNAL_SERVER_ERROR.message });
     }
-
-    next();
 };
