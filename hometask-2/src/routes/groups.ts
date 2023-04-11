@@ -1,102 +1,78 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 
 import { addUsersToGroup, createGroup, deleteGroup, getAllGroups, getGroupById, updateGroup } from '../data-access/group-repository';
 import { validateSchema } from '../middleware/validations';
-import { newGroupSchema, updateGroupSchema } from '../schemas/groups';
-import { logger } from '../services/logger';
-import { Group, GROUP_ERRORS as ERRORS } from '../types';
-import { prepareRoutesErrorLog } from '../utils/utils';
+import { newGroupSchema, updateGroupSchema } from '../schemas';
+import { checkToken } from '../middleware/checkToken';
 
 const router = express.Router();
 
-const DEFAULT_LIMIT = 20;
+const DEFAULT_LIMIT = 10;
 
 router.route('/:id')
-    .get(async (req: Request, res: Response) => {
+    .get(checkToken, async (req: Request, res: Response, next: NextFunction) => {
         try {
             const group = await getGroupById(req.params.id);
 
-            if (!group) {
-                throw new Error(ERRORS.GROUP_NOT_FOUND);
-            }
-
-            res.json(group);
-        } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            res.status(200).json({ success: true, data: group });
+        }  catch (err: any) {
+            next(err);
         }
     })
-    .put(validateSchema(updateGroupSchema), async (req: Request, res: Response) => {
+    .put(checkToken, validateSchema(updateGroupSchema),  async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const updatedGroup = await updateGroup(req.params.id, req.body);
+            const group = await updateGroup(req.params.id, req.body);
 
-            if (!updatedGroup) {
-                throw new Error(ERRORS.GROUP_NOT_FOUND);
-            }
-
-            res.json(updatedGroup);
-        } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            res.status(200).json({ success: true, data: group });
+        }  catch (err: any) {
+            next(err);
         }
     })
-    .delete(async (req: Request, res: Response) => {
+    .delete(checkToken, async (req: Request, res: Response, next: NextFunction) => {
         try {
             const deletedRowsCount = await deleteGroup(req.params.id);
 
-            if (!deletedRowsCount) {
-                throw new Error(ERRORS.GROUP_NOT_FOUND);
-            }
-
-            res.json({ deletedRowsCount });
-        } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            res.status(200).json({ success: true, data:  { deletedRowsCount } });
+        }  catch (err: any) {
+            next(err);
         }
     });
 
 router.route('/')
-    .get(async (req: Request, res: Response) => {
+    .get(checkToken,  async (req: Request, res: Response, next: NextFunction) => {
         try {
             const limit = req.query.limit ? parseInt(req.query?.limit as string, 10) : DEFAULT_LIMIT;
 
             const groups = await getAllGroups(limit);
 
-            res.json(groups);
-        } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            res.status(200).json({ success: true, data: groups });
+        }  catch (err: any) {
+            next(err);
         }
     })
-    .post(validateSchema(newGroupSchema), async (req: Request, res: Response) => {
+    .post(checkToken, validateSchema(newGroupSchema),  async (req: Request, res: Response, next: NextFunction) => {
         try {
             const groupId = await createGroup(req.body);
 
-            res.json({ id: groupId });
-        } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            res.status(201).json({ success: true, data: { id: groupId } });
+        }  catch (err: any) {
+            next(err);
         }
     });
 
 router.route('/:id/add-users')
-    .post(async (req: Request, res: Response) => {
+    .post(checkToken,  async (req: Request, res: Response, next: NextFunction) => {
         try {
             const groupId = req.params.id;
-            const group = await getGroupById(groupId);
-
-            if (!group) {
-                throw new Error(ERRORS.GROUP_NOT_FOUND);
-            }
+            await getGroupById(groupId);
 
             const userIds = req.body.userIds;
 
             await addUsersToGroup(groupId, userIds);
 
-            res.json({ groupId });
-        } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            res.status(201).json({ success: true, data: { id: groupId } });
+        }  catch (err: any) {
+            next(err);
         }
     });
 

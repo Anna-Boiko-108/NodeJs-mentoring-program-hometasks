@@ -1,62 +1,47 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 
 import { getUserById, addUser, updateUser, deleteUser, getAllUsers, getUsersByLoginSubstring } from '../data-access/user-repository';
 import { validateSchema } from '../middleware/validations';
-import { newUserSchema, updateUserSchema } from '../schemas/users';
-import { logger } from '../services/logger';
-import { USER_ERRORS as ERRORS, User } from '../types';
-import { prepareRoutesErrorLog } from '../utils/utils';
+import { newUserSchema, updateUserSchema } from '../schemas';
+import { getUserWithoutPassword } from '../utils/utils';
+import { checkToken } from '../middleware/checkToken';
+import { User } from '../types';
 
 const router = express.Router();
 
-const DEFAULT_LIMIT = 20;
+const DEFAULT_LIMIT = 10;
 
 router.route('/:id')
-    .get(async (req: Request, res: Response) => {
+    .get(checkToken, async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = await getUserById(req.params.id);
 
-            if (!user) {
-                throw new Error(ERRORS.USER_NOT_FOUND);
-            }
-
-            res.json(user);
-        } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            res.status(200).json({ success: true, data: getUserWithoutPassword(user) });
+        }  catch (err: any) {
+            next(err);
         }
     })
-    .put(validateSchema(updateUserSchema), async (req: Request, res: Response) => {
+    .put(validateSchema(updateUserSchema), checkToken, async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const updatedUser = await updateUser(req.params.id, req.body);
+            const user = await updateUser(req.params.id, req.body);
 
-            if (!updatedUser) {
-                throw new Error(ERRORS.USER_NOT_FOUND);
-            }
-
-            res.json(updatedUser);
-        } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            res.status(200).json({ success: true, data: getUserWithoutPassword(user) });
+        }  catch (err: any) {
+            next(err);
         }
     })
-    .delete(async (req: Request, res: Response) => {
+    .delete(checkToken, async (req: Request, res: Response, next: NextFunction) => {
         try {
             const deletedUserId = await deleteUser(req.params.id);
 
-            if (!deletedUserId) {
-                throw new Error(ERRORS.USER_NOT_FOUND);
-            }
-
-            res.json({ id: deletedUserId });
+            res.status(200).json({ success: true, data: { id: deletedUserId } });
         } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            next(err);
         }
     });
 
 router.route('/')
-    .get(async (req: Request, res: Response) => {
+    .get(checkToken, async (req: Request, res: Response, next: NextFunction) => {
         try {
             const loginSubstring = req.query.loginSubstring as string;
             const limit = req.query.limit ? parseInt(req.query?.limit as string, 10) : DEFAULT_LIMIT;
@@ -69,20 +54,18 @@ router.route('/')
                 users = await getAllUsers(limit);
             }
 
-            res.json(users);
+            res.status(200).json({ success: true, data: users.map(getUserWithoutPassword) });
         } catch (err: any) {
-            res.status(400).json({ message: err.message });
-            logger.error(prepareRoutesErrorLog(req, res, err));
+            next(err);
         }
     })
-    .post(validateSchema(newUserSchema), async (req: Request, res: Response) => {
+    .post(validateSchema(newUserSchema), async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userId = await addUser(req.body);
 
-            res.json({ id: userId });
+            res.status(201).json({ success: true, data:{ id: userId } });
         } catch (err: any) {
-            logger.error(prepareRoutesErrorLog(req, res, err));
-            res.status(400).json({ message: err.message });
+            next(err);
         }
     });
 
